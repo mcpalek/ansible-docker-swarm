@@ -1,0 +1,57 @@
+- name: Remove podman from RedHat/CentOs/Rocky
+  yum:
+    name: podman.x86_64
+    state: absent
+
+
+- name: remove buildah from RedHat/CentOs/Rocky
+  yum:
+    name: buildah.x86_64
+    state: absent
+
+- name: Uninstall old Docker versions from RedHat/CentOs/Rocky
+  yum:
+    name:
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-engine
+    state: absent
+
+- name: Install yum utils
+  yum:
+    name: # "{{ item }}"
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+    state: latest
+    #with_items:
+
+
+- name: Set up docker repository for RedHat/CentOs/Rocky
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+
+
+- name: Install the latest version of Docker Engine on RedHat/CentOs/Rocky
+  package:
+    name:
+    - docker-ce
+    - docker-ce-cli
+    - curl
+    - gnupg2
+    - python3-pip
+    state: present
+
+- name: install python Docker SDK on Rocky
+  shell: pip3 install docker
+
+- name: Start and enable docker on RedHat/CentOs/Rocky
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
