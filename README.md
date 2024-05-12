@@ -13,6 +13,6 @@ Then copy it to all servers
  
   ```ansible all -m ping --key-file /home/aca/.ssh/ansible --ask-become-pass```
  
- ```ansible-playbook local.yml --key-file /home/aca/.ssh/ansible --ask-become-pass```
+ ``` ansible-playbook playbook.yaml  -i inventory.yaml --key-file /home/aca/.ssh/ansible --ask-become-pass -u root```
  
  here it is asking for the user root password
