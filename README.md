@@ -1,5 +1,6 @@
 # ansible-docker-swarm
-Docker swarm installation with ansible
+Docker swarm installation with ansible, for several different LInux distros.
+It is tested with Rocky,CentOS , RedHat and Ubuntu
 
 In inventory  file ***inventory.yaml*** you should change the IP addresses of your servers
 
