@@ -1,5 +1,7 @@
 # ansible-docker-swarm
-docker swarm installation with ansible
+Docker swarm installation with ansible
+
+In inventory  file ***inventory.yaml*** you should change the IP addresses of your servers
 
 First create an ssh key  ``` ssh-keygen -t ed25519 -C "ansible"``` /home/aca/.ssh/ansible
 
@@ -11,6 +13,8 @@ Then copy it to all servers
  
   ```ansible all -m ping --key-file /home/aca/.ssh/ansible --ask-become-pass```
  
- ``` ansible-playbook playbook.yaml  -i inventory.yaml --key-file /home/aca/.ssh/ansible --ask-become-pass -u YourUser```
+ ```ansible-playbook playbook.yaml  -i inventory.yaml --key-file /home/aca/.ssh/ansible --ask-become-pass -u YourUser```
  
- here it asking for the user root password
+ Here you have to change ***YourUser*** with some real user name.
+
+ This command will ask for the user's root password
