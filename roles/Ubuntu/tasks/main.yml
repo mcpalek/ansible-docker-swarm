@@ -1,3 +1,13 @@
+- name: Update cache
+  shell: sudo apt update
+
+
+- name: Install Python 3
+  apt:
+    name:
+    - python3
+    - python3-pip
+    state: present
 - name: Ensure dependencies are installed.
   apt:
     name:
@@ -9,12 +19,12 @@
     - apt-transport-https
     - ca-certificates
     - python3-docker
+    - docker-compose
+    - git
     state: present
 
-- name: Update cache
-  shell: sudo apt update
-  when:
-  - ansible_distribution in ["Debian", "Ubuntu"]
+
+
 
 - name: Add Docker GPG key
   ansible.builtin.apt_key:
@@ -26,11 +36,33 @@
     repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
     state: present
 
-- name: Install the latest version of Docker Engine and containerd on Ubuntu
+- name: Install the latest version of Docker Engine on Ubuntu
   package:
     name:
     - docker-ce
     - docker-ce-cli
     # - containerd.io
     state: present
+
+#- name: Add current user to the Docker group
+#  shell: sudo usermod -aG docker $USER
+
+- name: Check if current user is in the Docker group
+  command: id -nG {{ ansible_user }}
+  register: user_groups
+
+- name: Add current user to the Docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: "'docker' not in user_groups.stdout.split(',')"
+#- name: Reset SSH connection so the user can start using docker without sudo
+#  meta: reset_connection
+- name: Wait for 10 seconds before starting Docker
+  wait_for:
+    timeout: 10
+- name: Enable and Start Docker
+  shell: sudo  systemctl enable docker && systemctl start docker
+
 

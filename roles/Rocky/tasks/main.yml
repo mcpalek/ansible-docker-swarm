@@ -47,11 +47,33 @@
     - python3-pip
     state: present
 
-- name: install python Docker SDK on Rocky
-  shell: pip3 install docker
+#- name: install python Docker SDK on Rocky
+#  shell: pip3 install docker
+
+- name: Install Docker SDK for Python
+  ansible.builtin.pip:
+    name: docker
+    state: present
 
 - name: Start and enable docker on RedHat/CentOs/Rocky
   systemd:
     name: docker
     state: started
     enabled: yes
+
+- name: Check if current user is in the Docker group
+  command: id -nG {{ ansible_user }}
+  register: user_groups
+
+- name: Add current user to the Docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: "'docker' not in user_groups.stdout.split(',')"
+
+- name: Stop firewalld service
+  ansible.builtin.systemd:
+    name: firewalld
+    state: stopped
+    enabled: no

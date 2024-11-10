@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+
+  vfm-admin:
+    container_name: admin
+    image: vfm-docker.softwaregroup.com/ut/impl-vfm-ib:${TAG}
+    command:
+      - "server"
+      - "--service=admin"
+      - "--adapter"
+      - "--orchestrator"
+      - "--adminPortal"
+    ports:
+      - "8004:8004"
+      - "30001:30001"
+    volumes:
+      - ./config/vfm-admin/.ut_vfm_ib_devrc:/app/.ut_vfm_ib_devrc
+      - ./log/admin:/var/lib/SoftwareGroup/UnderTree/vfm-ib/ut-log
+    environment:
+      - UT_ENV=dev
+    restart: on-failure:5
+
+  vfm-solution:
+    container_name: solution
+    image: vfm-docker.softwaregroup.com/ut/impl-vfm-ib:${TAG}
+    command:
+      - "server"
+      - "--service=solution"
+      - "--adapter"
+      - "--orchestrator"
+      - "--solutionPortal"
+    ports:
+      - "8006:8006"
+    volumes:
+      - ./config/vfm-solution/.ut_vfm_ib_devrc:/app/.ut_vfm_ib_devrc
+      - ./log/solution:/var/lib/SoftwareGroup/UnderTree/vfm-ib/ut-log
+    environment:
+      - UT_ENV=dev
+    restart: on-failure:5
+
+  vfm-gateway:
+    container_name: ussd
+    image: vfm-docker.softwaregroup.com/ut/impl-vfm-ib:${TAG}
+    command:
+      - "server"
+      - "--utTransfer.adapter"
+      - "--utTransfer.orchestrator"
+      - "--utTransfer.gateway"
+    ports:
+      - "9091:9091"
+      - "8090:8090"
+      - "9093:9093"
+      - "9094:9094"
+    volumes:
+      - ./config/vfm-ussd/.ut_vfm_ib_devrc:/app/.ut_vfm_ib_devrc
+      - ./log/ussd:/var/lib/SoftwareGroup/UnderTree/vfm-ib/ut-log
+    environment:
+      - UT_ENV=dev
+    restart: on-failure:5
+
+  mfihub-gateway:
+    container_name: payment
+    image: vfm-docker.softwaregroup.com/ut/impl-vfm-ib:${TAG}
+    command:
+      - "server"
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./config/vfm-payment/.ut_vfm_ib_devrc:/app/.ut_vfm_ib_devrc
+      - ./log/mfihub:/var/lib/SoftwareGroup/UnderTree/vfm-ib/ut-log
+    environment:
+      - UT_ENV=dev
+    restart: on-failure:5

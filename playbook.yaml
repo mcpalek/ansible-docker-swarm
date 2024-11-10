@@ -3,10 +3,12 @@
   hosts: all
   roles:
 
+
 - hosts: all
   become: true
   tasks:
-   - name: Choose Linux distro and run it's roles
+
+   - name: Choose Linux distro and install DockerS
      ansible.builtin.include_role:
        name: "{{ item }}"
      loop:
@@ -16,3 +18,7 @@
   become: true
   roles:
   - swarm
+
+
+  
+

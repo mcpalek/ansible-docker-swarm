@@ -1,8 +1,19 @@
-# tasks file for roles/swarm
+
+
+- name: Find physical network interface
+  set_fact:
+        physical_interface: "{{ item }}"
+  loop: "{{ ansible_interfaces }}"
+  when: "item != 'lo' and not item.startswith('vir') and not item.startswith('docker') and not item.startswith('veth')"
+
+# - name: Display physical network interface variable
+#   debug:
+#     var: physical_interface
+
 - name: check/init swarm
   docker_swarm:
     state: present
-    advertise_addr: eth0:2377
+    advertise_addr: "{{ physical_interface }}:2377"
   register: __output_swarm
   when: inventory_hostname in groups['managers'][0]
 
@@ -10,17 +21,30 @@
   docker_swarm:
     state: join
     timeout: 60
-    advertise_addr: eth0:2377
+    advertise_addr: "{{ physical_interface }}:2377"
     join_token: "{{ hostvars[groups['managers'][0]]['__output_swarm']['swarm_facts']['JoinTokens']['Manager']}}"
     remote_addrs: "{{ groups['managers'][0] }}"
-  when: inventory_hostname in groups['managers'] and inventory_hostname not in groups['managers'][0]
+  when: inventory_hostname in groups['managers'] and inventory_hostname in groups['managers'][0]
+  #when: inventory_hostname in groups['managers'] and inventory_hostname not in groups['managers'][0]
 
 - name: install worker
   docker_swarm:
     state: join
     timeout: 60
-    advertise_addr: eth0:2377
+    advertise_addr: "{{ physical_interface }}:2377"
     join_token: "{{ hostvars[groups['managers'][0]]['__output_swarm']['swarm_facts']['JoinTokens']['Worker'] }}"
     remote_addrs: "{{ groups['managers'][0] }}"
   when: inventory_hostname in groups['workers']
 
+- name: Get information about Docker nodes
+  community.docker.docker_node_info:
+  register: docker_swarm_node_info
+  when: inventory_hostname in groups['managers'][0]
+
+- name: Set node to label
+  community.docker.docker_node:
+    hostname: "{{ item.ID}}"
+    labels: 
+      role: monitoring
+  loop: "{{docker_swarm_node_info.nodes}}"    
+  when: inventory_hostname in groups['managers'][0] #item.Spec.Role == 'worker' and item.Description.Hostname == 'monitoring' and inventory_hostname in groups['managers'][0]
