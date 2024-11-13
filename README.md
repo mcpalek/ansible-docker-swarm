@@ -2,6 +2,17 @@
 Docker swarm installation with ansible, for several different Linux distros.
 It is tested with Rocky,CentOS , RedHat and Ubuntu
 
+For Ubuntu I added my user to docker group
+
+- name: Ensure the current user (aca in this case) is added to Docker group if not already a member
+  user:
+    name: aca  # Replace with the actual username 
+    group: docker
+    append: true
+  become: true
+
+
+
 In inventory  file ***inventory.yaml*** you should change the IP addresses of your servers
 
 First create an ssh key  ``` ssh-keygen -t ed25519 -C "ansible"``` /home/aca/.ssh/ansible  # I wrote my users home folder but you will write your user
@@ -19,7 +30,7 @@ I am using one Manager and two worker nodes
 
   Below is the command with which you start the playbook
  
- ```ansible-playbook playbook.yaml  -i inventory.yaml --key-file /home/aca/.ssh/ansible --ask-become-pass -u YourUser```
+ ```ansible-playbook playbook.yaml  -i inventory.yaml --key-file /home/aca/.ssh/ansible --ask-become-pass```
  
  Here you have to change ***YourUser*** with some real user name.
 

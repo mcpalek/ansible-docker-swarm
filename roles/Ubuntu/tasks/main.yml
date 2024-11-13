@@ -44,21 +44,26 @@
     # - containerd.io
     state: present
 
-#- name: Add current user to the Docker group
-#  shell: sudo usermod -aG docker $USER
+- name: Get the current username
+  command: whoami
+  register: current_user
 
-- name: Check if current user is in the Docker group
-  command: id -nG {{ ansible_user }}
-  register: user_groups
 
-- name: Add current user to the Docker group
+- name: Ensure root is added to Docker group if not already a member
   user:
-    name: "{{ ansible_user }}"
-    groups: docker
-    append: yes
-  when: "'docker' not in user_groups.stdout.split(',')"
-#- name: Reset SSH connection so the user can start using docker without sudo
-#  meta: reset_connection
+    name: root
+    group: docker
+    append: true
+  become: true
+
+- name: Ensure the current user (aca in this case) is added to Docker group if not already a member
+  user:
+    name: aca  # Replace with the actual username if needed
+    group: docker
+    append: true
+  become: true
+
+
 - name: Wait for 10 seconds before starting Docker
   wait_for:
     timeout: 10
